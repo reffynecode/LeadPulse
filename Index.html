@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Capture & Analytics Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <style>
+        .form-control:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+        }
+        .sortable:hover {
+            cursor: pointer;
+            background-color: #f3f4f6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-indigo-600">LeadPulse</h1>
+                    <p class="text-gray-600">Lead Capture & Analytics Dashboard</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button class="bg-white text-indigo-600 px-4 py-2 rounded shadow hover:bg-gray-100 border border-indigo-200">
+                        <i class="fas fa-cog mr-2"></i> Settings
+                    </button>
+                    <button class="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700">
+                        <i class="fas fa-save mr-2"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="mb-6 border-b border-gray-200">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+                <li class="mr-2">
+                    <a href="#" class="tab-link active inline-block p-4 border-b-2 border-indigo-600 rounded-t-lg text-indigo-600" data-tab="dashboard">
+                        <i class="fas fa-chart-line mr-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="mr-2">
+                    <a href="#" class="tab-link inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" data-tab="form-builder">
+                        <i class="fas fa-edit mr-2"></i>Form Builder
+                    </a>
+                </li>
+                <li class="mr-2">
+                    <a href="#" class="tab-link inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" data-tab="leads">
+                        <i class="fas fa-users mr-2"></i>Leads
+                    </a>
+                </li>
+                <li class="mr-2">
+                    <a href="#" class="tab-link inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300" data-tab="form-preview">
+                        <i class="fas fa-eye mr-2"></i>Form Preview
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Total Leads</p>
+                            <h3 class="text-3xl font-bold text-gray-800">1,284</h3>
+                            <p class="text-sm text-green-500 mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>14.2% from last month
+                            </p>
+                        </div>
+                        <div class="p-3 bg-indigo-100 rounded-full">
+                            <i class="fas fa-users text-indigo-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Conversion Rate</p>
+                            <h3 class="text-3xl font-bold text-gray-800">8.7%</h3>
+                            <p class="text-sm text-green-500 mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>2.1% from last month
+                            </p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-percentage text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Avg. Response Time</p>
+                            <h3 class="text-3xl font-bold text-gray-800">4.2h</h3>
+                            <p class="text-sm text-red-500 mt-2">
+                                <i class="fas fa-arrow-up mr-1"></i>0.8h from last month
+                            </p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-clock text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Lead Submissions Over Time</h3>
+                    <div class="chart-container">
+                        <canvas id="submissionsChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Device Breakdown</h3>
+                    <div class="chart-container">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Conversion by Source</h3>
+                    <div class="chart-container">
+                        <canvas id="sourceChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center p-2 hover:bg-gray-50 rounded">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-user-plus text-blue-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">New lead captured: John Smith</p>
+                                <p class="text-xs text-gray-500">10 minutes ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center p-2 hover:bg-gray-50 rounded">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-green-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Form updated: Contact Form</p>
+                                <p class="text-xs text-gray-500">2 hours ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center p-2 hover:bg-gray-50 rounded">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-indigo-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">New lead captured: Sarah Johnson</p>
+                                <p class="text-xs text-gray-500">3 hours ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center p-2 hover:bg-gray-50 rounded">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-bell text-purple-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Notification sent to sales team</p>
+                                <p class="text-xs text-gray-500">5 hours ago</p>
+                            </div>
+                        </li>
+                        <li class="flex items-center p-2 hover:bg-gray-50 rounded">
+                            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-exclamation-triangle text-red-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium">Form submission failed</p>
+                                <p class="text-xs text-gray-500">Yesterday at 2:45 PM</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Builder Tab -->
+        <div id="form-builder" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-1 bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Form Elements</h3>
+                    <p class="text-sm text-gray-600 mb-4">Drag and drop elements to build your form</p>
+                    
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-font text-indigo-500 mr-3"></i>
+                                <span>Text Field</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope text-indigo-500 mr-3"></i>
+                                <span>Email Field</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-indigo-500 mr-3"></i>
+                                <span>Phone Field</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-list text-indigo-500 mr-3"></i>
+                                <span>Dropdown</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-square text-indigo-500 mr-3"></i>
+                                <span>Checkbox</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-dot-circle text-indigo-500 mr-3"></i>
+                                <span>Radio Button</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-paragraph text-indigo-500 mr-3"></i>
+                                <span>Text Area</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar text-indigo-500 mr-3"></i>
+                                <span>Date Picker</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-200 hover:bg-gray-100 cursor-move">
+                            <div class="flex items-center">
+                                <i class="fas fa-upload text-indigo-500 mr-3"></i>
+                                <span>File Upload</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Form Builder</h3>
+                        <div class="flex space-x-2">
+                            <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200">
+                                <i class="fas fa-undo mr-1"></i> Undo
+                            </button>
+                            <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded hover:bg-gray-200">
+                                <i class="fas fa-redo mr-1"></i> Redo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 min-h-[500px]">
+                        <div class="mb-4 p-4 bg-white border border-gray-200 rounded relative">
+                            <div class="absolute right-2 top-2 flex space-x-1">
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-arrows-alt"></i></button>
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-pen"></i></button>
+                                <button class="text-gray-400 hover:text-red-600 p-1"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="John Smith">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">Required</span>
+                                <span class="text-xs text-gray-500">Text Field</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 p-4 bg-white border border-gray-200 rounded relative">
+                            <div class="absolute right-2 top-2 flex space-x-1">
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-arrows-alt"></i></button>
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-pen"></i></button>
+                                <button class="text-gray-400 hover:text-red-600 p-1"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="you@example.com">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">Required</span>
+                                <span class="text-xs text-gray-500">Email Field</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 p-4 bg-white border border-gray-200 rounded relative">
+                            <div class="absolute right-2 top-2 flex space-x-1">
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-arrows-alt"></i></button>
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-pen"></i></button>
+                                <button class="text-gray-400 hover:text-red-600 p-1"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="(123) 456-7890">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">Optional</span>
+                                <span class="text-xs text-gray-500">Phone Field</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4 p-4 bg-white border border-gray-200 rounded relative">
+                            <div class="absolute right-2 top-2 flex space-x-1">
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-arrows-alt"></i></button>
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-pen"></i></button>
+                                <button class="text-gray-400 hover:text-red-600 p-1"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                            <input type="text" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="Acme Inc.">
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">Optional</span>
+                                <span class="text-xs text-gray-500">Text Field</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-white border border-gray-200 rounded relative">
+                            <div class="absolute right-2 top-2 flex space-x-1">
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-arrows-alt"></i></button>
+                                <button class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-pen"></i></button>
+                                <button class="text-gray-400 hover:text-red-600 p-1"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                            <textarea class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" rows="3" placeholder="How can we help you?"></textarea>
+                            <div class="flex justify-between mt-1">
+                                <span class="text-xs text-gray-500">Optional</span>
+                                <span class="text-xs text-gray-500">Text Area</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-between">
+                        <button class="bg-white text-indigo-600 px-4 py-2 rounded shadow hover:bg-gray-100 border border-indigo-200">
+                            <i class="fas fa-eye mr-2"></i> Preview Form
+                        </button>
+                        <button class="bg-indigo-600 text-white px-4 py-2 rounded shadow hover:bg-indigo-700">
+                            <i class="fas fa-save mr-2"></i> Save Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leads Tab -->
+        <div id="leads" class="tab-content">
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-wrap justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-800">Lead Information</h3>
+                        <div class="flex space-x-2 mt-2 sm:mt-0">
+                            <div class="relative">
+                                <input type="text" placeholder="Search leads..." class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 w-full">
+                                <div class="absolute right-3 top-2.5 text-gray-400">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                            </div>
+                            <button class="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                            <button class="bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700">
+                                <i class="fas fa-download mr-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable">
+                                    <div class="flex items-center">
+                                        <span>Name</span>
+                                        <i class="fas fa-sort ml-1"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable">
+                                    <div class="flex items-center">
+                                        <span>Email</span>
+                                        <i class="fas fa-sort ml-1"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable">
+                                    <div class="flex items-center">
+                                        <span>Company</span>
+                                        <i class="fas fa-sort ml-1"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable">
+                                    <div class="flex items-center">
+                                        <span>Source</span>
+                                        <i class="fas fa-sort ml-1"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable">
+                                    <div class="flex items-center">
+                                        <span>Date</span>
+                                        <i class="fas fa-sort ml-1"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sortable">
+                                    <div class="flex items-center">
+                                        <span>Status</span>
+                                        <i class="fas fa-sort ml-1"></i>
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                            <span class="text-indigo-600 font-medium">JS</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">John Smith</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">john.smith@example.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Acme Inc.</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Website Contact Form</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Apr 15, 2024</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        New
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex space-x-2">
+                                        <button class="text-indigo-600 hover:text-indigo-800">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-pink-100 flex items-center justify-center">
+                                            <span class="text-pink-600 font-medium">SJ</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Sarah Johnson</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">sarah.j@techcorp.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">TechCorp</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Landing Page</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Apr 14, 2024</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        In Progress
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex space-x-2">
+                                        <button class="text-indigo-600 hover:text-indigo-800">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                                            <span class="text-green-600 font-medium">MP</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Michael Parker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">michael@globalfirm.org</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Global Firm</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Facebook Ad</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Apr 13, 2024</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        Contacted
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex space-x-2">
+                                        <button class="text-indigo-600 hover:text-indigo-800">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                            <span class="text-purple-600 font-medium">EL</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Emma Lewis</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">emma.lewis@startupco.io</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">StartupCo</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">LinkedIn</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Apr 12, 2024</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Qualified
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex space-x-2">
+                                        <button class="text-indigo-600 hover:text-indigo-800">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                                            <span class="text-yellow-600 font-medium">RK</span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Robert King</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">robert@kingdesign.com</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">King Design</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Blog Signup</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">Apr 10, 2024</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        Closed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div class="flex space-x-2">
+                                        <button class="text-indigo-600 hover:text-indigo-800">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-700">
+                            Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">42</span> results
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50" disabled>Previous</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-indigo-600 text-white hover:bg-indigo-700">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">4</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Preview Tab -->
+        <div id="form-preview" class="tab-content">
+            <div class="bg-gray-100 p-6 rounded-lg shadow max-w-lg mx-auto">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Contact Us</h2>
+                    <p class="text-gray-600">Fill out the form below and we'll get back to you as soon as possible.</p>
+                </div>
+                
+                <form>
+                    <div class="mb-4">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="name" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="John Smith" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" id="email" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="you@example.com" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="(123) 456-7890">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                        <input type="text" id="company" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="Acme Inc.">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                        <textarea id="message" rows="4" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none" placeholder="How can we help you?"></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox h-4 w-4 text-indigo-600">
+                            <span class="ml-2 text-sm text-gray-600">I agree to the privacy policy</span>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links and contents
+                    tabLinks.forEach(link => link.classList.remove('active', 'border-indigo-600', 'text-indigo-600'));
+                    tabLinks.forEach(link => link.classList.add('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+                    this.classList.remove('border-transparent', 'hover:text-gray-600', 'hover:border-gray-300');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Chart.js - Submissions Over Time
+            const submissionsChart = new Chart(
+                document.getElementById('submissionsChart'),
+                {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Submissions',
+                            data: [65, 72, 86, 95, 112, 124, 131, 142, 158, 164, 180, 210],
+                            borderColor: '#4f46e5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Chart.js - Device Breakdown
+            const deviceChart = new Chart(
+                document.getElementById('deviceChart'),
+                {
+                    type: 'pie',
+                    data: {
+                        labels: ['Mobile', 'Desktop', 'Tablet'],
+                        datasets: [{
+                            data: [58, 35, 7],
+                            backgroundColor: [
+                                '#4f46e5',
+                                '#34d399',
+                                '#fbbf24'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Chart.js - Source Breakdown
+            const sourceChart = new Chart(
+                document.getElementById('sourceChart'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: ['Website', 'Social Media', 'Email', 'Referral', 'Direct'],
+                        datasets: [{
+                            label: 'Leads',
+                            data: [423, 325, 214, 187, 135],
+                            backgroundColor: '#4f46e5'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+        });
+    </script>
+</body>
+</html>
